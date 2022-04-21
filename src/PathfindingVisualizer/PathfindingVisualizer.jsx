@@ -80,7 +80,8 @@ export default class PathfindingVisualizer extends Component {
     const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
     const visitedNodesInOrder = astar(grid, startNode, finishNode);
     const nodesInShortestPathOrder = getNodesInShortestPathOrder(finishNode);
-    this.animateDijkstra(visitedNodesInOrder, nodesInShortestPathOrder);
+    console.log(nodesInShortestPathOrder);
+    //this.animateDijkstra(visitedNodesInOrder, nodesInShortestPathOrder);
   }
 
   render() {
@@ -149,6 +150,16 @@ const createNode = (col, row) => {
     isVisited: false,
     isWall: false,
     previousNode: null,
+    previousNode: null,
+    totalDistance: Infinity,
+    heuristicDistance: null,
+    direction: null,
+    storedDirection: null,
+    relatesToObject: false,
+    overwriteObjectRelation: false,
+    otherpreviousNode: null,
+    otherdistance: Infinity,
+    otherdirection: null,
   };
 };
 
