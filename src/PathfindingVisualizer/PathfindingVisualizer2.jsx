@@ -38,6 +38,41 @@ export default class PathfindingVisualizer2 extends Component {
         this.setState({ mouseIsPressed: false });
     }
 
+    visualizeAstar() {
+        const { grid } = this.state;
+        const startNode = grid[START_NODE_ROW][START_NODE_COL];
+        const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
+        const visitedNodesInOrder = astar(startNode, finishNode);
+        //const nodesInShortestPathOrder = getNodesInShortestPathOrder(finishNode);
+        this.animateDijkstra(visitedNodesInOrder);
+    }
+
+    animateDijkstra(visitedNodesInOrder) {
+        for (let i = 0; i < visitedNodesInOrder.length; i++) {
+            const node = visitedNodesInOrder[i];
+            const newGrid = this.state.grid.slice();
+            const newNode = {
+                ...node,
+                isVisited: true
+            };
+
+            newGrid[node.row][node.col] = newNode;
+            setTimeout(() => {
+                this.setState({ grid: newGrid });
+                document.getElementById(`node-${node.row}-${node.col}`).className = 'node node-shortest-path';
+            }, 100);
+        }
+    }
+
+    animateShortestPath(nodesInShortestPathOrder) {
+        for (let i = 0; i < nodesInShortestPathOrder.length; i++) {
+            setTimeout(() => {
+                const node = nodesInShortestPathOrder[i];
+                document.getElementById(`node-${node.row}-${node.col}`).className =
+                    'node node-shortest-path';
+            }, 50 * i);
+        }
+    }
 
     render() {
         const { grid, mouseIsPressed } = this.state;
@@ -89,6 +124,10 @@ const getInitialGrid = () => {
         }
         grid.push(currentRow);
     }
+    addNeighboursWrap(grid);
+    const startNode = grid[START_NODE_ROW][START_NODE_COL];
+    const endNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
+    astar(startNode, endNode);
     return grid;
 };
 
@@ -101,8 +140,27 @@ const createNode = (col, row) => {
         h: 0,
         isStart: row === START_NODE_ROW && col === START_NODE_COL,
         isFinish: row === FINISH_NODE_ROW && col === FINISH_NODE_COL,
+        neighbours: [],
+        previous: undefined,
+        addNeighbours: function (grid) {
+            let i = this.col;
+            let j = this.row;
+            if (i > 0) this.neighbours.push(grid[j][i - 1]);
+            if (i < 50 - 1) this.neighbours.push(grid[j][i + 1]);
+            if (j > 0) this.neighbours.push(grid[j - 1][i]);
+            if (j < 20 - 1) this.neighbours.push(grid[j + 1][i]);
+        },
+
     };
 };
+
+const addNeighboursWrap = (grid) => {
+    for (let i = 0; i < 20; i++) {
+        for (let j = 0; j < 50; j++) {
+            grid[i][j].addNeighbours(grid);
+        }
+    }
+}
 
 const getNewGridWithWallToggled = (grid, row, col) => {
     const newGrid = grid.slice();
